@@ -11,7 +11,7 @@ concurrency: publish
 
 jobs:
   deploy:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3

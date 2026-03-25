@@ -1,4 +1,4 @@
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 import packaging.version
 from airflow import __version__ as airflow_version

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from datetime import datetime
 from enum import Enum
 from typing import Any
 
@@ -61,9 +62,14 @@ class BrazeHook(HttpHook):
         response = self.run(
             endpoint=endpoint,
             headers=self._get_headers(),
-            extra_options={"check_response": True},
+            extra_options={"check_response": False},
         )
         response.url = f"{base_url}{endpoint}"
+        if response.status_code == 429:
+            body = response.json()
+            message = body.get("message", "")
+            raise AirflowException(message)
+        response.raise_for_status()
         return response.json()
 
     def get_cdi_job_sync_status(self, integration_id: str) -> list[dict[str, Any]]:
@@ -82,20 +88,37 @@ class BrazeHook(HttpHook):
     def wait_for_cdi_job(
         self,
         integration_id: str,
+        triggered_after: datetime,
         poll_interval: int = 30,
         timeout: int = 3600,
     ) -> dict[str, Any]:
-        """Poll CDI job status until it reaches a terminal state."""
+        """Poll CDI job status until it reaches a terminal state.
+
+        :param triggered_after: Only consider jobs whose sync_start_time is
+            at or after this timestamp. This avoids picking up stale runs
+            that were already visible before the trigger.
+        """
         start_time = time.monotonic()
 
         while True:
             results = self.get_cdi_job_sync_status(integration_id)
-            if not results:
-                raise AirflowException(
-                    f"No sync status results found for integration {integration_id}"
-                )
+            job = self._find_job_after(results, triggered_after)
 
-            job = results[0]
+            if job is None:
+                elapsed = time.monotonic() - start_time
+                if elapsed + poll_interval > timeout:
+                    raise AirflowException(
+                        f"CDI job for integration {integration_id} did not appear "
+                        f"within {timeout}s after trigger."
+                    )
+                self.log.info(
+                    "No CDI job found yet for integration %s triggered after %s, retrying...",
+                    integration_id,
+                    triggered_after.isoformat(),
+                )
+                time.sleep(poll_interval)
+                continue
+
             status = job.get("job_status", "")
             self.log.info("CDI job status for integration %s: %s", integration_id, status)
 
@@ -114,6 +137,20 @@ class BrazeHook(HttpHook):
                 )
 
             time.sleep(poll_interval)
+
+    @staticmethod
+    def _find_job_after(
+        results: list[dict[str, Any]], triggered_after: datetime
+    ) -> dict[str, Any] | None:
+        """Return the most recent job if its sync_start_time >= triggered_after."""
+        if not results:
+            return None
+        job = results[0]
+        sync_start = job.get("sync_start_time", "")
+        if not sync_start:
+            return None
+        job_time = datetime.fromisoformat(sync_start.replace("Z", "+00:00"))
+        return job if job_time >= triggered_after else None
 
     @classmethod
     def get_ui_field_behaviour(cls) -> dict[str, Any]:

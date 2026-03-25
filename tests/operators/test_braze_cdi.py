@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 import pytest
 from airflow.exceptions import AirflowException
@@ -49,6 +49,7 @@ class TestBrazeRunCDIJobOperator:
         mock_hook.trigger_cdi_job_sync.assert_called_once_with(INTEGRATION_ID)
         mock_hook.wait_for_cdi_job.assert_called_once_with(
             integration_id=INTEGRATION_ID,
+            triggered_after=ANY,
             poll_interval=1,
             timeout=10,
         )

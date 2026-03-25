@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any
 
 from airflow.models import BaseOperator
@@ -39,6 +40,7 @@ class BrazeRunCDIJobOperator(BaseOperator):
         hook = BrazeHook(braze_conn_id=self.braze_conn_id)
 
         self.log.info("Triggering CDI sync for integration %s", self.integration_id)
+        triggered_after = datetime.now(timezone.utc)
         trigger_response = hook.trigger_cdi_job_sync(self.integration_id)
         self.log.info("Trigger response: %s", trigger_response)
 
@@ -49,6 +51,7 @@ class BrazeRunCDIJobOperator(BaseOperator):
         self.log.info("Waiting for CDI job to complete...")
         result = hook.wait_for_cdi_job(
             integration_id=self.integration_id,
+            triggered_after=triggered_after,
             poll_interval=self.poll_interval,
             timeout=self.timeout,
         )

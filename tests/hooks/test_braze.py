@@ -162,7 +162,7 @@ class TestGetCDIJobSyncStatus:
             }
         ]
         mock_response = MagicMock()
-        mock_response.json.return_value = status_data
+        mock_response.json.return_value = {"results": status_data, "message": "success"}
         with patch.object(hook, "get_connection", return_value=mock_connection), patch.object(
             hook, "run", return_value=mock_response
         ):

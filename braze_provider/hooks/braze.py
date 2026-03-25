@@ -77,7 +77,7 @@ class BrazeHook(HttpHook):
             extra_options={"check_response": True},
         )
         response.url = f"{base_url}{endpoint}"
-        return response.json()
+        return response.json()["results"]
 
     def wait_for_cdi_job(
         self,

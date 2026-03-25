@@ -34,7 +34,7 @@ In the Airflow UI, create a connection with:
 | Field | Value |
 |-------|-------|
 | **Connection Type** | Braze |
-| **Host** | Your Braze REST endpoint (e.g. `rest.iad-03.braze.com`) |
+| **Host** | Your Braze REST endpoint (e.g. `https://rest.iad-03.braze.com`) |
 | **Password** | Your Braze REST API key |
 
 ## Usage

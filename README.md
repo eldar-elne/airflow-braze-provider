@@ -64,15 +64,6 @@ sync_braze = BrazeRunCDIJobOperator(
 
 The operator returns the full job result dict via XCom, including `rows_synced` and `rows_failed_with_errors`.
 
-## Development
-
-```bash
-pyenv virtualenv 3.11 braze-provider
-pyenv activate braze-provider
-pip install -e .
-pip install pytest
-pytest tests/ -v
-```
 
 ## Contributing
 

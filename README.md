@@ -15,6 +15,9 @@
   <a href="https://pypi.org/project/airflow-provider-braze/"><img src="https://img.shields.io/pypi/pyversions/airflow-provider-braze" alt="Python"></a>
   <a href="https://github.com/eldar-elne/airflow-braze-provider/blob/main/LICENSE"><img src="https://img.shields.io/github/license/eldar-elne/airflow-braze-provider" alt="License"></a>
   <a href="https://github.com/eldar-elne/airflow-braze-provider/actions/workflows/tests.yml"><img src="https://github.com/eldar-elne/airflow-braze-provider/actions/workflows/tests.yml/badge.svg" alt="Tests"</a>
+  <a href="https://pepy.tech/project/airflow-provider-braze" target="_blank" style="display: inline-block; margin-top: 10px;">
+  <img src="https://static.pepy.tech/badge/airflow-provider-braze" alt="Total Downloads" style="width: 120px; height: auto;">
+  </a>
 </p>
 ---
 
